@@ -1,0 +1,2 @@
+# sprite-library
+private
