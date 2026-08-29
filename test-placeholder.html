@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<!-- for hosting in private server   -->
+<html>
+<head>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600&display=swap');
+
+    :root {
+      --bg: #fdf3f8;
+      --panel: #ffffff;
+      --lavender: #e6defc;
+      --pink: #ffd9ec;
+      --mint: #d6f5ea;
+      --peach: #ffe4d6;
+      --text: #6b5b73;
+      --text-soft: #a596ab;
+      --ring: #d9c9f0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, var(--bg), var(--lavender) 140%);
+      color: var(--text);
+      padding: 32px;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: var(--text);
+      margin: 0 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      margin: 0 0 20px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      background: var(--panel);
+      padding: 18px 22px;
+      border-radius: 20px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      gap: 6px;
+      color: var(--text-soft);
+    }
+
+    input[type="number"] {
+      width: 80px;
+      padding: 7px 10px;
+      border: 2px solid var(--ring);
+      border-radius: 12px;
+      background: #fffaff;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    input[type="number"]:focus { border-color: #c9a6e8; }
+
+    input[type="range"] {
+      width: 140px;
+      accent-color: #d9a6e8;
+    }
+
+    #readout {
+      margin-top: 16px;
+      font-size: 13px;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      color: #8fbfa8;
+      background: var(--mint);
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 14px;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      border: none;
+      border-radius: 20px;
+      background: #fffaff;
+      display: block;
+      margin-top: 16px;
+    }
+
+    input[type="text"] {
+      width: 120px;
+      padding: 7px 10px;
+      border: 2px solid var(--ring);
+      border-radius: 12px;
+      background: #fffaff;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    input[type="text"]:focus { border-color: #c9a6e8; }
+
+    input[type="color"] {
+      width: 48px;
+      height: 36px;
+      padding: 2px;
+      border: 2px solid var(--ring);
+      border-radius: 12px;
+      background: #fffaff;
+      cursor: pointer;
+    }
+
+    button {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: transform 0.1s ease, opacity 0.15s ease;
+    }
+    button:active { transform: scale(0.96); }
+
+    #addBtn { background: var(--pink); color: #b0508a; }
+    #addBtn:hover { opacity: 0.85; }
+
+    .filebar { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
+    #saveBtn { background: var(--mint); color: #3f8f6f; }
+    #saveBtn:hover { opacity: 0.85; }
+    #fileStatus {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .list {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 560px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--panel);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+
+    .item .name { font-family: 'Quicksand', sans-serif; font-weight: 700; flex: 1; }
+    .item .dims { color: var(--text-soft); }
+
+    .delBtn {
+      background: none;
+      color: #d98fa8;
+      font-size: 15px;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+    .delBtn:hover { background: var(--pink); }
+  </style>
+</head>
+<body>
+
+  <div class="controls">
+    <label>Name / ID
+      <input type="text" id="name" value="player" maxlength="24">
+    </label>
+    <label>Width (px)
+      <input type="number" id="w" value="32" min="1" max="512">
+    </label>
+    <label>Height (px)
+      <input type="number" id="h" value="32" min="1" max="512">
+    </label>
+    <label>X position
+      <input type="range" id="x" value="100" min="0" max="1600">
+    </label>
+    <label>Y position
+      <input type="range" id="y" value="100" min="0" max="800">
+    </label>
+    <label>Color
+      <input type="color" id="color" value="#ff0000">
+    </label>
+    <label>&nbsp;
+      <button id="addBtn">+ add object</button>
+    </label>
+    <label>Canvas width
+      <input type="number" id="cw" value="1600" min="200" max="3000">
+    </label>
+    <label>Canvas height
+      <input type="number" id="ch" value="800" min="200" max="2000">
+    </label>
+  </div>
+
+  <div id="readout"></div>
+
+  <canvas id="game" width="1600" height="800"></canvas>
+
+  <div class="filebar">
+    <button id="saveBtn">save</button>
+    <span id="fileStatus">checking for saved file…</span>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const nameInput = document.getElementById('name');
+    const wInput = document.getElementById('w');
+    const hInput = document.getElementById('h');
+    const xInput = document.getElementById('x');
+    const yInput = document.getElementById('y');
+    const colorInput = document.getElementById('color');
+    const cwInput = document.getElementById('cw');
+    const chInput = document.getElementById('ch');
+    const readout = document.getElementById('readout');
+    const addBtn = document.getElementById('addBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const loadInput = document.getElementById('loadInput');
+    const listEl = document.getElementById('list');
+
+    // saved objects live here: { name, w, h, x, y, color }
+    let objects = [];
+
+    function currentDraft() {
+      return {
+        name: nameInput.value.trim() || 'unnamed',
+        w: parseInt(wInput.value) || 0,
+        h: parseInt(hInput.value) || 0,
+        x: parseInt(xInput.value) || 0,
+        y: parseInt(yInput.value) || 0,
+        color: colorInput.value
+      };
+    }
+
+    function draw() {
+      const cw = parseInt(cwInput.value) || 0;
+      const ch = parseInt(chInput.value) || 0;
+
+      canvas.width = cw;
+      canvas.height = ch;
+      xInput.max = cw;
+      yInput.max = ch;
+
+      ctx.clearRect(0, 0, cw, ch);
+
+      // faint grid every 100px so you can eyeball proportions against the room
+      ctx.strokeStyle = '#f1e4f6';
+      ctx.lineWidth = 1;
+      for (let gx = 0; gx <= cw; gx += 100) {
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ch); ctx.stroke();
+      }
+      for (let gy = 0; gy <= ch; gy += 100) {
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke();
+      }
+
+      // saved objects, drawn faded so the draft square stands out
+      objects.forEach(o => {
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = o.color;
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#6b5b73';
+        ctx.font = '11px monospace';
+        ctx.fillText(o.name, o.x, o.y - 4);
+      });
+
+      // the live draft square, full opacity, drawn last so it's on top
+      const draft = currentDraft();
+      ctx.fillStyle = draft.color;
+      ctx.fillRect(draft.x, draft.y, draft.w, draft.h);
+
+      readout.textContent = `draft "${draft.name}": ${draft.w}x${draft.h}px at (${draft.x}, ${draft.y})  |  canvas: ${cw}x${ch}px  |  ${objects.length} saved`;
+    }
+
+    function renderList() {
+      listEl.innerHTML = '';
+      objects.forEach((o, i) => {
+        const row = document.createElement('div');
+        row.className = 'item';
+        row.innerHTML = `
+          <div class="swatch" style="background:${o.color}"></div>
+          <div class="name">${o.name}</div>
+          <div class="dims">${o.w}×${o.h}px @ (${o.x}, ${o.y})</div>
+          <button class="delBtn" data-i="${i}">✕</button>
+        `;
+        listEl.appendChild(row);
+      });
+      listEl.querySelectorAll('.delBtn').forEach(btn =>
+        btn.addEventListener('click', () => {
+          objects.splice(parseInt(btn.dataset.i), 1);
+          renderList();
+          draw();
+        })
+      );
+    }
+
+    addBtn.addEventListener('click', () => {
+      objects.push(currentDraft());
+      renderList();
+      draw();
+    });
+
+    // File System Access API: link a project FOLDER once, then every save
+    // and load reads/writes a fixed filename inside that same folder — no
+    // dialog after the initial folder pick. Chromium only (Chrome, Edge,
+    // Brave); Firefox/Safari fall back to plain download/upload below.
+    const supportsFS = 'showDirectoryPicker' in window;
+    const FILENAME = 'sprite-objects.txt';
+    let dirHandle = null;
+    const folderBtn = document.getElementById('folderBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const fileStatus = document.getElementById('fileStatus');
+
+    function toText() {
+      return objects.map(o => `${o.name},${o.w},${o.h},${o.x},${o.y},${o.color}`).join('\n');
+    }
+
+    function fromText(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      objects = lines.map(line => {
+        const [name, w, h, x, y, color] = line.split(',');
+        return { name, w: parseInt(w), h: parseInt(h), x: parseInt(x), y: parseInt(y), color };
+      });
+      renderList();
+      draw();
+    }
+
+    async function saveDownloadFallback() {
+      const blob = new Blob([toText()], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = FILENAME;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    folderBtn.addEventListener('click', async () => {
+      if (!supportsFS) {
+        fileStatus.textContent = 'folder linking not supported in this browser — use save/load below';
+        return;
+      }
+      try {
+        dirHandle = await window.showDirectoryPicker();
+        fileStatus.textContent = `linked folder: ${dirHandle.name}`;
+      } catch (err) {
+        if (err.name !== 'AbortError') console.error(err);
+      }
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      if (!supportsFS || !dirHandle) return saveDownloadFallback();
+      try {
+        const fh = await dirHandle.getFileHandle(FILENAME, { create: true });
+        const writable = await fh.createWritable();
+        await writable.write(toText());
+        await writable.close();
+        fileStatus.textContent = `linked folder: ${dirHandle.name} (saved ${FILENAME})`;
+      } catch (err) {
+        console.error(err);
+        fileStatus.textContent = 'save failed — see console';
+      }
+    });
+
+    loadBtn.addEventListener('click', async () => {
+      if (!supportsFS || !dirHandle) return loadInput.click();
+      try {
+        const fh = await dirHandle.getFileHandle(FILENAME);
+        const file = await fh.getFile();
+        fromText(await file.text());
+        fileStatus.textContent = `linked folder: ${dirHandle.name} (loaded ${FILENAME})`;
+      } catch (err) {
+        if (err.name === 'NotFoundError') {
+          fileStatus.textContent = `linked folder: ${dirHandle.name} (no ${FILENAME} yet — save to create it)`;
+        } else {
+          console.error(err);
+        }
+      }
+    });
+
+    // fallback path for Firefox/Safari, or before a folder is linked
+    loadInput.addEventListener('change', () => {
+      const file = loadInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        fromText(reader.result);
+        fileStatus.textContent = `loaded: ${file.name} (link a folder above for auto-save)`;
+      };
+      reader.readAsText(file);
+      loadInput.value = '';
+    });
+
+    [nameInput, wInput, hInput, xInput, yInput, colorInput, cwInput, chInput].forEach(input =>
+      input.addEventListener('input', draw)
+    );
+
+    draw();
+  </script>
+</body>
+</html>
