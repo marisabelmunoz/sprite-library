@@ -1,2 +1,3 @@
 # sprite-library
-private
+
+[[journal.md]]
