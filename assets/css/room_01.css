@@ -1,0 +1,35 @@
+:root {
+
+    --background-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='%238cbfc2'%3E%3Crect width='32' height='32'/%3E%3Crect x='32' y='32' width='32' height='32'/%3E%3C/g%3E%3Cg fill='%237ba6b4'%3E%3Crect x='32' width='32' height='32'/%3E%3Crect y='32' width='32' height='32'/%3E%3C/g%3E%3C/svg%3E");
+
+    --border-color: #378dae;
+    --blue1: #5cadc3;
+    --blue2: #5db8ca;
+    --water: #a0e1d9;
+}
+
+body {
+    background-image: var(--background-tile);
+    background-size: 64px 64px;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    align-content: center;
+
+}
+
+canvas {
+    width: 1000px;
+    height: 800px;
+    display: block;
+    margin: 0 auto;
+    background-color: var(--water);
+    border:1rem solid var(--border-color);
+}
+
+@media (max-width: 898px) {
+    canvas {
+        width: 90vw;
+        height: auto;
+    }
+}
